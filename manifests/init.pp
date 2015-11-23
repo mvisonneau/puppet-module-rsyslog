@@ -171,7 +171,15 @@ class rsyslog (
       $default_logrotate_present      = true
       $default_service_name           = 'rsyslog'
       $default_sysconfig_path         = '/etc/sysconfig/rsyslog'
-      case $::lsbmajdistrelease {
+
+      if $::lsbmajdistrelease == undef {
+        $majorversion = $::operatingsystemmajrelease
+      }
+      else {
+        $majorversion = $::lsbmajdistrelease
+      }
+
+      case $majorversion {
         '5': {
           $default_pid_file        = '/var/run/rsyslogd.pid'
           $sysconfig_erb           = 'sysconfig.rhel5.erb'
@@ -188,7 +196,7 @@ class rsyslog (
           $default_syslogd_options = '-c 4'
         }
         default: {
-          fail("rsyslog supports RedHat like systems with major release of 5, 6 and 7 and you have ${::lsbmajdistrelease}")
+          fail("rsyslog supports RedHat like systems with major release of 5, 6 and 7 and you have ${majorversion}")
         }
       }
       # ensures that sysklogd is absent, which is needed on EL5
